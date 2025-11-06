@@ -1,117 +1,117 @@
-// import { useState } from 'react'
-// import { Box, Grid, Typography, TextField, Select, MenuItem, Card, CardMedia, CardContent, Button, CircularProgress } from '@mui/material'
-// import type { RecipesPageProps } from './RecipesPageType'
+import { useState, type ChangeEvent } from 'react';
 
-// interface Recipe {
-//   id: number
-//   name: string
-//   image: string
-//   cuisine: string
-//   rating: number
-//   caloriesPerServing: number
-// }
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 
-// const mockRecipes: Recipe[] = [
-//   {
-//     id: 1,
-//     name: 'Spaghetti Carbonara',
-//     image: 'https://dummyjson.com/image/i/products/1/1.jpg',
-//     cuisine: 'Italian',
-//     rating: 4.7,
-//     caloriesPerServing: 520,
-//   },
-//   {
-//     id: 2,
-//     name: 'Chicken Curry',
-//     image: 'https://dummyjson.com/image/i/products/2/1.jpg',
-//     cuisine: 'Indian',
-//     rating: 4.5,
-//     caloriesPerServing: 610,
-//   },
-// ]
+import type { Recipe } from '../../shared/types';
+import { useGetRecipesQuery } from '../../shared/api';
 
-// const RecipesPage: RecipesPageProps = () => {
-//   const [query, setQuery] = useState('')
-//   const [sort, setSort] = useState<'rating' | 'calories'>('rating')
-//   const [loading, ] = useState(false)
+const RecipesPage: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [sort, setSort] = useState<'rating' | 'calories'>('rating');
 
-//   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setQuery(e.target.value)
-//   }
+  const { data, isLoading, isError } = useGetRecipesQuery();
 
-//   const handleSortChange = (e) => {
-//     setSort(e.target.value)
-//   }
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  };
 
-//   const sortedRecipes = [...mockRecipes].sort((a, b) =>
-//     sort === 'rating' ? b.rating - a.rating : a.caloriesPerServing - b.caloriesPerServing
-//   )
+  const handleSortChange = (e: SelectChangeEvent<'rating' | 'calories'>) => {
+    setSort(e.target.value as 'rating' | 'calories');
+  };
 
-//   return (
-//     <Box sx={{ p: 4 }}>
-//       <Typography variant="h4" fontWeight={600} mb={3}>
-//         Recipes
-//       </Typography>
+  const recipes: Recipe[] = data?.recipes ?? [];
 
-//       <Box display="flex" gap={2} mb={4}>
-//         <TextField
-//           variant="outlined"
-//           label="Search recipes..."
-//           value={query}
-//           onChange={handleSearchChange}
-//           sx={{ flex: 1 }}
-//         />
-//         <Select value={sort} onChange={handleSortChange}>
-//           <MenuItem value="rating">By rating</MenuItem>
-//           <MenuItem value="calories">By calories</MenuItem>
-//         </Select>
-//       </Box>
+  const filteredRecipes = recipes.filter(recipe =>
+    recipe.name.toLowerCase().includes(query.toLowerCase())
+  );
 
-//       {loading ? (
-//         <Box display="flex" justifyContent="center" mt={5}>
-//           <CircularProgress />
-//         </Box>
-//       ) : (
-//         <Grid container spacing={3}>
-//           {sortedRecipes.map((recipe) => (
-//             <Grid item xs={12} sm={6} md={4} lg={3} key={recipe.id}>
-//               <Card sx={{ borderRadius: 3, overflow: 'hidden', height: '100%' }}>
-//                 <CardMedia
-//                   component="img"
-//                   height="180"
-//                   image={recipe.image}
-//                   alt={recipe.name}
-//                 />
-//                 <CardContent>
-//                   <Typography variant="h6" gutterBottom>
-//                     {recipe.name}
-//                   </Typography>
-//                   <Typography variant="body2" color="text.secondary">
-//                     {recipe.cuisine} • {recipe.caloriesPerServing} kcal
-//                   </Typography>
-//                   <Typography variant="body2" color="primary" mt={1}>
-//                     Rating: {recipe.rating}
-//                   </Typography>
-//                 </CardContent>
-//               </Card>
-//             </Grid>
-//           ))}
-//         </Grid>
-//       )}
+  const sortedRecipes = [...filteredRecipes].sort((a, b) =>
+    sort === 'rating' ? b.rating - a.rating : a.caloriesPerServing - b.caloriesPerServing
+  );
 
-//       {/* Load more */}
-//       <Box textAlign="center" mt={5}>
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           onClick={() => console.log('Load more')}
-//           sx={{ borderRadius: 3, px: 5 }}
-//         >
-//           Load more
-//         </Button>
-//       </Box>
-//     </Box>
-//   )
-// }
+  return (
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4" fontWeight={600} mb={3}>
+        Recipes
+      </Typography>
 
-// export default RecipesPage
+      {/* Search & Sort */}
+      <Box display="flex" gap={2} mb={4}>
+        <TextField
+          variant="outlined"
+          label="Search recipes..."
+          value={query}
+          onChange={handleSearchChange}
+          sx={{ flex: 1 }}
+        />
+
+        <Select value={sort} onChange={handleSortChange}>
+          <MenuItem value="rating">By rating</MenuItem>
+          <MenuItem value="calories">By calories</MenuItem>
+        </Select>
+      </Box>
+
+      {/* Loading / Error / Content */}
+      {isLoading ? (
+        <Box display="flex" justifyContent="center" mt={5}>
+          <CircularProgress />
+        </Box>
+      ) : isError ? (
+        <Typography color="error" textAlign="center">
+          Error loading recipes
+        </Typography>
+      ) : (
+        <Grid container spacing={3}>
+          {sortedRecipes.map(recipe => (
+            <Card
+              sx={{
+                borderRadius: 3,
+                overflow: 'hidden',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <CardMedia component="img" height="180" image={recipe.image} alt={recipe.name} />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                  {recipe.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {recipe.cuisine} • {recipe.caloriesPerServing} kcal
+                </Typography>
+                <Typography variant="body2" color="primary" mt={1}>
+                  Rating: {recipe.rating}
+                </Typography>
+              </CardContent>
+            </Card>
+          ))}
+        </Grid>
+      )}
+
+      {/* Load more */}
+      <Box textAlign="center" mt={5}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => console.log('Load more')}
+          sx={{ borderRadius: 3, px: 5 }}
+        >
+          Load more
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
+export default RecipesPage;

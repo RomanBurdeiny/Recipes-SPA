@@ -1,20 +1,9 @@
-import { Controller, useFormContext, type SubmitHandler } from 'react-hook-form';
-import Button from './Button';
+import { Controller, useFormContext } from 'react-hook-form';
+import Button from '../Button/Button';
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-export interface AuthFormProps {
-  onSubmit: SubmitHandler<IAuthForm>;
-  isDarkMode: boolean;
-  authTitle: string;
-  authLink: string;
-  backLink: string;
-}
-export interface IAuthForm {
-  email: string;
-  password: string;
-}
+import { type AuthFormProps, type IAuthForm } from './AuthFormType';
 
 const AuthForm: React.FC<AuthFormProps> = ({
   onSubmit,

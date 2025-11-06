@@ -5,38 +5,124 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.showbox {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
+.loader {
+  position: relative;
+  margin: 0 auto;
+  width: var(--width);
+  background-size: 100% auto;
+  background-position: center center;
+}
+
+.loader::before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+}
+
+.circular {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  animation: rotate 2s linear infinite;
+  transform-origin: center;
+}
+
+.head,
+.chin,
+.smile {
+  stroke-linecap: round;
+  stroke: var(--blue);
+}
+
+.head {
+  stroke-dasharray: 60.3, 200;
+  stroke-dashoffset: 185;
+  animation: rotate 1.5s linear infinite;
+  transform-origin: center;
+}
+
+.chin {
+  stroke-dasharray: 60.3, 200;
+  stroke-dashoffset: -5;
+  animation: rotate 1.5s linear infinite;
+  transform-origin: center;
+}
+
+.smile {
+  stroke-dasharray: 27, 200;
+  stroke-dashoffset: -4;
+  animation: rotate-double 0.7s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes rotate {
+  100% {
     transform: rotate(360deg);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@keyframes rotate-double {
+  100% {
+    transform: rotate(-720deg);
   }
 }
 
-.card {
-  padding: 2em;
+@keyframes smilespin {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: -4;
+  }
+  25% {
+    stroke-dasharray: 27, 200;
+    stroke-dashoffset: -4px;
+  }
+  50% {
+    stroke-dasharray: 27, 200;
+    stroke-dashoffset: -4px;
+  }
+  75% {
+    stroke-dasharray: 27, 200;
+    stroke-dashoffset: -4px;
+    transform: rotate(720deg);
+  }
+  100% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: -4px;
+  }
 }
 
-.read-the-docs {
-  color: #888;
+.nav-link {
+  color: #fff;
+  text-transform: none;
+  margin-right: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 400;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-link.active {
+  color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.15);
+  font-weight: 600;
 }

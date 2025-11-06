@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../firebase-config';
-import AuthForm from '../../components/AuthForm';
+import AuthForm from '../../components/AuthForm/AuthForm';
 import { useForm, FormProvider } from 'react-hook-form';
 
 export interface IAuthForm {

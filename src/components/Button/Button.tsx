@@ -1,6 +1,4 @@
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  isDarkMode: boolean;
-}
+import { type ButtonProps } from './ButtonType';
 
 const Button: React.FC<ButtonProps> = ({
   onClick,
