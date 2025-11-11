@@ -13,3 +13,13 @@ export interface RecipesResponse {
   skip: number;
   limit: number;
 }
+export interface AppUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+}
+
+export interface AuthState {
+  user: AppUser | null;
+  isLoading: boolean;
+}

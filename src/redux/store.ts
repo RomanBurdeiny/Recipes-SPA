@@ -1,10 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { recipesApi } from '../shared/api';
+import authReducer from './auth.slice';
 
 export const store = configureStore({
   reducer: {
+    auth: authReducer,
     [recipesApi.reducerPath]: recipesApi.reducer,
-    // сюда же потом добавишь authReducer, favouritesReducer и т.д.
   },
   middleware: getDefault => getDefault().concat(recipesApi.middleware),
 });

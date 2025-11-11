@@ -2,6 +2,8 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { store } from './redux/store';
 import { Provider } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 import LogIn from './pages/AuthForm/LogIn';
@@ -59,5 +61,6 @@ createRoot(document.getElementById('root')!).render(
         />
       </Routes>
     </BrowserRouter>
+    <ToastContainer position="top-right" autoClose={4000} />
   </Provider>
 );
