@@ -9,10 +9,10 @@ export interface Recipe {
   cookTimeMinutes: number;
   servings: number;
   difficulty: string;
-  tags: object;
+  tags: string[];
   userId: number;
   reviewCount: number;
-  mealType: string;
+  mealType: string[];
 }
 
 export interface RecipesResponse {
@@ -30,4 +30,11 @@ export interface AppUser {
 export interface AuthState {
   user: AppUser | null;
   isLoading: boolean;
+}
+
+export interface RecipesResponse {
+  recipes: Recipe[];
+  total: number;
+  skip: number;
+  limit: number;
 }

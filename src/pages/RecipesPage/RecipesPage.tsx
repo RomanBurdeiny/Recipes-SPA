@@ -1,43 +1,103 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import {
+  Box,
+  Grid,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  Card,
+  CardMedia,
+  CardContent,
+  Button,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material/Select';
 
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Select, { type SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
+import type { Recipe } from '../../shared/api';
+import { useGetRecipesQuery, useGetRecipeTagsQuery } from '../../shared/api';
 
-import type { Recipe } from '../../shared/types';
-import { useGetRecipesQuery } from '../../shared/api';
+const PAGE_SIZE = 10;
+
+type UiSort = 'rating' | 'difficulty' | 'time' | 'alphabet';
+
+const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+const CUISINES = ['Italian', 'Indian', 'American', 'Mexican', 'French', 'Chinese'];
 
 const RecipesPage: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<'rating' | 'calories'>('rating');
+  const [sort, setSort] = useState<UiSort>('rating');
+  const [filters, setFilters] = useState({ mealType: '', cuisine: '', tag: '' });
 
-  const { data, isLoading, isError } = useGetRecipesQuery();
+  const [page, setPage] = useState(0);
+  const [items, setItems] = useState<Recipe[]>([]);
+  const [total, setTotal] = useState(0);
+
+  const sortBy = useMemo(() => {
+    switch (sort) {
+      case 'rating':
+        return 'rating' as const;
+      case 'difficulty':
+        return 'difficulty' as const;
+      case 'time':
+        return 'prepTimeMinutes' as const;
+      case 'alphabet':
+        return 'name' as const;
+      default:
+        return 'rating' as const;
+    }
+  }, [sort]);
+
+  const order = sort === 'rating' ? 'desc' : 'asc';
+
+  const canUseServerSearch = !filters.mealType && !filters.cuisine && !filters.tag && query.trim();
+
+  const { data, isLoading, isFetching, isError } = useGetRecipesQuery({
+    limit: PAGE_SIZE,
+    skip: page * PAGE_SIZE,
+    sortBy,
+    order,
+    mealType: filters.mealType || undefined,
+    cuisine: filters.cuisine || undefined,
+    tag: filters.tag || undefined,
+    q: canUseServerSearch ? query.trim() : undefined,
+  });
+
+  const { data: allTags = [] } = useGetRecipeTagsQuery();
+
+  useEffect(() => {
+    setPage(0);
+    setItems([]);
+    setTotal(0);
+  }, [query, sort, filters.mealType, filters.cuisine, filters.tag]);
+
+  useEffect(() => {
+    if (!data) return;
+    setTotal(data.total);
+    setItems(prev => {
+      if (page === 0) return data.recipes;
+      // аккум + уникальность по id
+      const map = new Map<number, Recipe>();
+      [...prev, ...data.recipes].forEach(r => map.set(r.id, r));
+      return Array.from(map.values());
+    });
+  }, [data, page]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
 
-  const handleSortChange = (e: SelectChangeEvent<'rating' | 'calories'>) => {
-    setSort(e.target.value as 'rating' | 'calories');
+  const handleSortChange = (e: SelectChangeEvent<UiSort>) => {
+    setSort(e.target.value as UiSort);
   };
 
-  const recipes: Recipe[] = data?.recipes ?? [];
+  const handleFilterChange =
+    (key: 'mealType' | 'cuisine' | 'tag') => (e: SelectChangeEvent<string>) =>
+      setFilters(prev => ({ ...prev, [key]: e.target.value }));
 
-  const filteredRecipes = recipes.filter(recipe =>
-    recipe.name.toLowerCase().includes(query.toLowerCase())
-  );
-
-  const sortedRecipes = [...filteredRecipes].sort((a, b) =>
-    sort === 'rating' ? b.rating - a.rating : a.caloriesPerServing - b.caloriesPerServing
-  );
+  const hasMore = items.length < total;
 
   return (
     <Box sx={{ p: 4 }}>
@@ -45,24 +105,67 @@ const RecipesPage: React.FC = () => {
         Recipes
       </Typography>
 
-      {/* Search & Sort */}
-      <Box display="flex" gap={2} mb={4}>
+      <Box display="flex" flexWrap="wrap" gap={2} mb={4}>
         <TextField
           variant="outlined"
           label="Search recipes..."
           value={query}
           onChange={handleSearchChange}
-          sx={{ flex: 1 }}
+          sx={{ flex: 1, minWidth: 220 }}
         />
 
-        <Select value={sort} onChange={handleSortChange}>
-          <MenuItem value="rating">By rating</MenuItem>
-          <MenuItem value="calories">By calories</MenuItem>
-        </Select>
+        <FormControl sx={{ minWidth: 180 }}>
+          <InputLabel>Sort by</InputLabel>
+          <Select value={sort} label="Sort by" onChange={handleSortChange}>
+            <MenuItem value="rating">Rating (desc)</MenuItem>
+            <MenuItem value="difficulty">Difficulty (asc)</MenuItem>
+            <MenuItem value="time">Prep time (asc)</MenuItem>
+            <MenuItem value="alphabet">Alphabet (asc)</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 160 }}>
+          <InputLabel>Meal type</InputLabel>
+          <Select
+            value={filters.mealType}
+            label="Meal type"
+            onChange={handleFilterChange('mealType')}
+          >
+            <MenuItem value="">All</MenuItem>
+            {MEAL_TYPES.map(m => (
+              <MenuItem key={m} value={m}>
+                {m}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 160 }}>
+          <InputLabel>Cuisine</InputLabel>
+          <Select value={filters.cuisine} label="Cuisine" onChange={handleFilterChange('cuisine')}>
+            <MenuItem value="">All</MenuItem>
+            {CUISINES.map(c => (
+              <MenuItem key={c} value={c}>
+                {c}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ minWidth: 160 }}>
+          <InputLabel>Tag</InputLabel>
+          <Select value={filters.tag} label="Tag" onChange={handleFilterChange('tag')}>
+            <MenuItem value="">All</MenuItem>
+            {allTags.slice(0, 40).map(t => (
+              <MenuItem key={t} value={t}>
+                {t}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </Box>
 
-      {/* Loading / Error / Content */}
-      {isLoading ? (
+      {isLoading && items.length === 0 ? (
         <Box display="flex" justifyContent="center" mt={5}>
           <CircularProgress />
         </Box>
@@ -72,7 +175,7 @@ const RecipesPage: React.FC = () => {
         </Typography>
       ) : (
         <Grid container spacing={3}>
-          {sortedRecipes.map(recipe => (
+          {items.map(recipe => (
             <Card
               sx={{
                 borderRadius: 3,
@@ -99,16 +202,18 @@ const RecipesPage: React.FC = () => {
         </Grid>
       )}
 
-      {/* Load more */}
       <Box textAlign="center" mt={5}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => console.log('Load more')}
-          sx={{ borderRadius: 3, px: 5 }}
-        >
-          Load more
-        </Button>
+        {hasMore && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setPage(p => p + 1)}
+            disabled={isFetching}
+            sx={{ borderRadius: 3, px: 5 }}
+          >
+            {isFetching ? 'Loading…' : 'Load more'}
+          </Button>
+        )}
       </Box>
     </Box>
   );
