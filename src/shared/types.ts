@@ -5,6 +5,14 @@ export interface Recipe {
   cuisine: string;
   rating: number;
   caloriesPerServing: number;
+  prepTimeMinutes: number;
+  cookTimeMinutes: number;
+  servings: number;
+  difficulty: string;
+  tags: object;
+  userId: number;
+  reviewCount: number;
+  mealType: string;
 }
 
 export interface RecipesResponse {
