@@ -38,3 +38,16 @@ export interface RecipesResponse {
   skip: number;
   limit: number;
 }
+
+export interface UserRecipe {
+  id: number;
+  name: string;
+  image?: string;
+  mealType?: string;
+  cuisine?: string;
+  prepTimeMinutes?: number;
+  caloriesPerServing?: number;
+  description?: string;
+  rating?: number;
+}
+export type UserRecipeInput = Omit<UserRecipe, 'id'>;

@@ -13,11 +13,36 @@ const Header: React.FC = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <AppBar position="static" sx={{ mb: 4 }}>
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box display="flex" alignItems="center">
-          <Typography variant="h6" sx={{ cursor: 'pointer', mr: 4 }} onClick={() => navigate('/')}>
-            🍲 Recipes
+    <AppBar
+      position="sticky"
+      sx={{
+        mb: 4,
+        backgroundColor: '#ff7a21',
+      }}
+    >
+      <Toolbar
+        sx={{
+          justifyContent: 'space-between',
+          maxWidth: 1280,
+          width: '100%',
+          mx: 'auto',
+          px: 2,
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={3}>
+          <Typography
+            variant="h4"
+            sx={{
+              cursor: 'pointer',
+              mr: 3,
+              fontFamily: '"Great Vibes", cursive',
+              fontSize: '40px',
+              color: '#fff',
+              textShadow: '2px 2px 6px rgba(0,0,0,0.35)',
+            }}
+            onClick={() => navigate('/')}
+          >
+            Recipes
           </Typography>
 
           <NavLink to="/" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
@@ -41,11 +66,16 @@ const Header: React.FC = () => {
 
         <Box display="flex" alignItems="center" gap={2}>
           {user?.email && (
-            <Typography variant="body2" sx={{ color: '#fff', mr: 2 }}>
+            <Typography variant="body2" sx={{ color: '#fff', mr: 1 }}>
               {user.email}
             </Typography>
           )}
-          <Button color="inherit" onClick={handleSignOut}>
+
+          <Button
+            color="inherit"
+            onClick={handleSignOut}
+            sx={{ textTransform: 'none', fontWeight: 600 }}
+          >
             Sign Out
           </Button>
         </Box>

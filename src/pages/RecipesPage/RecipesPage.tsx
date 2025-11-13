@@ -6,20 +6,22 @@ import {
   TextField,
   Select,
   MenuItem,
-  Card,
-  CardMedia,
-  CardContent,
   Button,
   CircularProgress,
   FormControl,
   InputLabel,
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material/Select';
+import { useSelector, useDispatch } from 'react-redux';
+import { auth } from '../../../firebase-config';
+import { type AppDispatch } from '../../redux/store';
+import { fetchFavoritesForUser } from '../../redux/favorites.slice';
 
 import type { Recipe } from '../../shared/api';
 import { useGetRecipesQuery, useGetRecipeTagsQuery } from '../../shared/api';
-
-const PAGE_SIZE = 10;
+import type { RootState } from '../../redux/store';
+import RecipeCard from '../../components/RecipeCard/RecipeCard';
+import useToggleFavorite from '../../hooks/useToggleFavorite';
 
 type UiSort = 'rating' | 'difficulty' | 'time' | 'alphabet';
 
@@ -30,10 +32,20 @@ const RecipesPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<UiSort>('rating');
   const [filters, setFilters] = useState({ mealType: '', cuisine: '', tag: '' });
-
   const [page, setPage] = useState(0);
   const [items, setItems] = useState<Recipe[]>([]);
   const [total, setTotal] = useState(0);
+
+  const favoriteIds = useSelector((s: RootState) => s.favorites.ids);
+  const dispatch = useDispatch<AppDispatch>();
+  const { toggleFavorite } = useToggleFavorite();
+  const uid = auth.currentUser?.uid ?? null;
+
+  useEffect(() => {
+    if (uid) {
+      dispatch(fetchFavoritesForUser(uid));
+    }
+  }, [uid, dispatch]);
 
   const sortBy = useMemo(() => {
     switch (sort) {
@@ -51,12 +63,11 @@ const RecipesPage: React.FC = () => {
   }, [sort]);
 
   const order = sort === 'rating' ? 'desc' : 'asc';
-
   const canUseServerSearch = !filters.mealType && !filters.cuisine && !filters.tag && query.trim();
 
   const { data, isLoading, isFetching, isError } = useGetRecipesQuery({
-    limit: PAGE_SIZE,
-    skip: page * PAGE_SIZE,
+    limit: 10,
+    skip: page * 10,
     sortBy,
     order,
     mealType: filters.mealType || undefined,
@@ -78,12 +89,13 @@ const RecipesPage: React.FC = () => {
     setTotal(data.total);
     setItems(prev => {
       if (page === 0) return data.recipes;
-      // аккум + уникальность по id
       const map = new Map<number, Recipe>();
       [...prev, ...data.recipes].forEach(r => map.set(r.id, r));
       return Array.from(map.values());
     });
   }, [data, page]);
+
+  const hasMore = items.length < total;
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -97,10 +109,15 @@ const RecipesPage: React.FC = () => {
     (key: 'mealType' | 'cuisine' | 'tag') => (e: SelectChangeEvent<string>) =>
       setFilters(prev => ({ ...prev, [key]: e.target.value }));
 
-  const hasMore = items.length < total;
-
   return (
-    <Box sx={{ p: 4 }}>
+    <Box
+      sx={{
+        p: 4,
+        maxWidth: 1280,
+        mx: 'auto',
+        width: '100%',
+      }}
+    >
       <Typography variant="h4" fontWeight={600} mb={3}>
         Recipes
       </Typography>
@@ -176,28 +193,13 @@ const RecipesPage: React.FC = () => {
       ) : (
         <Grid container spacing={3}>
           {items.map(recipe => (
-            <Card
-              sx={{
-                borderRadius: 3,
-                overflow: 'hidden',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <CardMedia component="img" height="180" image={recipe.image} alt={recipe.name} />
-              <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="h6" gutterBottom>
-                  {recipe.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {recipe.cuisine} • {recipe.caloriesPerServing} kcal
-                </Typography>
-                <Typography variant="body2" color="primary" mt={1}>
-                  Rating: {recipe.rating}
-                </Typography>
-              </CardContent>
-            </Card>
+            <Grid key={recipe.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <RecipeCard
+                recipe={recipe}
+                isFavorite={favoriteIds.includes(recipe.id)}
+                onToggleFavorite={() => toggleFavorite(recipe.id)}
+              />
+            </Grid>
           ))}
         </Grid>
       )}

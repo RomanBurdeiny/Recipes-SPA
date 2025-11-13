@@ -1,10 +1,8 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-
 .showbox {
   width: 100vw;
   height: 100vh;
@@ -105,24 +103,21 @@
 }
 
 .nav-link {
-  color: #fff;
-  text-transform: none;
-  margin-right: 12px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 400;
+  color: white;
   text-decoration: none;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  margin-right: 20px;
+  font-size: 15px;
+  opacity: 0.85;
+  transition: 0.2s ease;
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  opacity: 1;
 }
 
 .nav-link.active {
-  color: #1976d2;
-  background-color: rgba(25, 118, 210, 0.15);
-  font-weight: 600;
+  font-weight: 700;
+  opacity: 1;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.9);
+  padding-bottom: 3px;
 }
