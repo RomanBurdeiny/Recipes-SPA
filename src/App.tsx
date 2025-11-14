@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Header from './components/Header/Header';
 import FavoritesPage from './pages/FavoritesPage/FavoritesPage';
 import MyRecipesPage from './pages/MyRecipesPage/MyRecipesPage';
+import RecipeDetailsPage from './pages/RecipeDetailsPage/RecipeDetailPage';
 
 createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
@@ -56,6 +57,14 @@ createRoot(document.getElementById('root')!).render(
           element={
             <ProtectedRoute>
               <MyRecipesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recipes/:id"
+          element={
+            <ProtectedRoute>
+              <RecipeDetailsPage />
             </ProtectedRoute>
           }
         />

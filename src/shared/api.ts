@@ -1,17 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
-export interface Recipe {
-  id: number;
-  name: string;
-  image: string;
-  cuisine: string;
-  rating: number;
-  caloriesPerServing: number;
-  difficulty?: string;
-  prepTimeMinutes?: number;
-  mealType?: string[];
-  tags?: string[];
-}
+import type { Recipe } from './types';
 
 export interface RecipesResponse {
   recipes: Recipe[];
@@ -56,7 +44,7 @@ export const recipesApi = createApi({
           order: args?.order,
           select:
             args?.select ??
-            'id,name,image,cuisine,rating,caloriesPerServing,prepTimeMinutes,difficulty,mealType,tags',
+            'id,name,image,cuisine,rating,caloriesPerServing,prepTimeMinutes,difficulty,mealType,tags,ingredients,instructions,cookTimeMinutes',
         };
 
         let basePath = '/recipes';

@@ -13,6 +13,8 @@ export interface Recipe {
   userId: number;
   reviewCount: number;
   mealType: string[];
+  ingredients?: string[];
+  instructions?: string[];
 }
 
 export interface RecipesResponse {

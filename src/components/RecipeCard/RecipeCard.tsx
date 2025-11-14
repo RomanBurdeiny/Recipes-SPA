@@ -1,18 +1,32 @@
-import { Card, CardMedia, CardContent, IconButton, Box, Typography } from '@mui/material';
+import {
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent,
+  IconButton,
+  Typography,
+  Box,
+} from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import type { RecipeCardProps } from './RecipeCardProps';
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
   recipe,
-  isFavorite = false,
+  isFavorite,
   onToggleFavorite,
-  onEdit,
-  onDelete,
+  onOpen,
 }) => {
-  const imageSrc = (recipe as { image?: string }).image ?? '/placeholder.jpg';
+  const imageSrc = recipe.image || '/placeholder.jpg';
+
+  const handleCardClick = () => {
+    if (onOpen) onOpen();
+  };
+
+  const handleFavClick: React.MouseEventHandler<HTMLButtonElement> = e => {
+    e.stopPropagation();
+    onToggleFavorite();
+  };
 
   return (
     <Card
@@ -22,74 +36,47 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
         height: 320,
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative',
-        cursor: onEdit ? 'pointer' : 'default',
       }}
-      onClick={onEdit || undefined}
+      onClick={handleCardClick}
     >
-      <CardMedia
-        component="img"
-        height={160}
-        image={imageSrc}
-        alt={recipe.name}
-        sx={{ objectFit: 'cover' }}
-      />
-
-      <CardContent
+      <CardActionArea
         sx={{
-          flexGrow: 1,
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          gap: 0.5,
+          alignItems: 'stretch',
         }}
       >
-        <Typography variant="h6" noWrap title={recipe.name}>
-          {recipe.name}
-        </Typography>
+        <Box sx={{ position: 'relative', width: '100%' }}>
+          <CardMedia
+            component="img"
+            height={160}
+            image={imageSrc}
+            alt={recipe.name}
+            sx={{ objectFit: 'cover' }}
+          />
 
-        <Box mt="auto" display="flex" justifyContent="space-between" alignItems="center">
-          {onEdit || onDelete ? (
-            <Box>
-              {onEdit && (
-                <IconButton
-                  size="small"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onEdit();
-                  }}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-              )}
-              {onDelete && (
-                <IconButton
-                  size="small"
-                  onClick={e => {
-                    e.stopPropagation();
-                    onDelete();
-                  }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Box>
-          ) : (
-            <span />
-          )}
-
-          {onToggleFavorite && (
-            <IconButton
-              aria-label="favorite"
-              onClick={e => {
-                e.stopPropagation();
-                onToggleFavorite();
-              }}
-            >
-              {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
-            </IconButton>
-          )}
+          <IconButton
+            sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'white' }}
+            onClick={handleFavClick}
+          >
+            {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          </IconButton>
         </Box>
-      </CardContent>
+
+        <CardContent
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5,
+          }}
+        >
+          <Typography variant="h6" noWrap title={recipe.name}>
+            {recipe.name}
+          </Typography>
+        </CardContent>
+      </CardActionArea>
     </Card>
   );
 };

@@ -23,7 +23,6 @@ const MyRecipesPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedRecipe, setSelectedRecipe] = useState<UserRecipe | null>(null);
-
   useEffect(() => {
     if (uid) {
       dispatch(fetchMyRecipesForUser(uid));

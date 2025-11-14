@@ -16,8 +16,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { auth } from '../../../firebase-config';
 import { type AppDispatch } from '../../redux/store';
 import { fetchFavoritesForUser } from '../../redux/favorites.slice';
+import { useNavigate } from 'react-router-dom';
 
-import type { Recipe } from '../../shared/api';
+import type { Recipe } from '../../shared/types';
 import { useGetRecipesQuery, useGetRecipeTagsQuery } from '../../shared/api';
 import type { RootState } from '../../redux/store';
 import RecipeCard from '../../components/RecipeCard/RecipeCard';
@@ -40,6 +41,7 @@ const RecipesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { toggleFavorite } = useToggleFavorite();
   const uid = auth.currentUser?.uid ?? null;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (uid) {
@@ -198,6 +200,7 @@ const RecipesPage: React.FC = () => {
                 recipe={recipe}
                 isFavorite={favoriteIds.includes(recipe.id)}
                 onToggleFavorite={() => toggleFavorite(recipe.id)}
+                onOpen={() => navigate(`/recipes/${recipe.id}`)}
               />
             </Grid>
           ))}
