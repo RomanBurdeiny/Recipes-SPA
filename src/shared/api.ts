@@ -50,7 +50,7 @@ export const recipesApi = createApi({
         let basePath = '/recipes';
         if (args?.mealType) basePath = `/recipes/meal-type/${encodeURIComponent(args.mealType)}`;
         else if (args?.tag) basePath = `/recipes/tag/${encodeURIComponent(args.tag)}`;
-        else if (args?.cuisine) basePath = `/recipes/cuisine/${encodeURIComponent(args.cuisine)}`;
+        else if (args?.cuisine) basePath = `/recipes/tag/${encodeURIComponent(args.cuisine)}`;
         else if (args?.q) basePath = `/recipes/search?q=${encodeURIComponent(args.q)}`;
 
         const query = qs(p);

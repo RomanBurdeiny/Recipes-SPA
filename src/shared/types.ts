@@ -50,6 +50,7 @@ export interface UserRecipe {
   prepTimeMinutes?: number;
   caloriesPerServing?: number;
   description?: string;
-  rating?: number;
+  rating: number;
+  difficulty?: number;
 }
 export type UserRecipeInput = Omit<UserRecipe, 'id'>;

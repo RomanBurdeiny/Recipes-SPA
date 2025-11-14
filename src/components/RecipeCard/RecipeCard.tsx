@@ -6,7 +6,10 @@ import {
   IconButton,
   Typography,
   Box,
+  Stack,
+  Chip,
 } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import type { RecipeCardProps } from './RecipeCardProps';
@@ -75,6 +78,26 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           <Typography variant="h6" noWrap title={recipe.name}>
             {recipe.name}
           </Typography>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              <StarIcon sx={{ color: '#ffb400', fontSize: 20 }} />
+              <Typography variant="body2">{recipe.rating.toFixed(1)}</Typography>
+            </Stack>
+
+            {recipe.difficulty && (
+              <Chip
+                label={recipe.difficulty}
+                size="small"
+                color={
+                  recipe.difficulty === 'Easy'
+                    ? 'success'
+                    : recipe.difficulty === 'Medium'
+                      ? 'warning'
+                      : 'error'
+                }
+              />
+            )}
+          </Stack>
         </CardContent>
       </CardActionArea>
     </Card>

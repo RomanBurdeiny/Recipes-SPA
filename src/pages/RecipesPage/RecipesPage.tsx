@@ -136,10 +136,10 @@ const RecipesPage: React.FC = () => {
         <FormControl sx={{ minWidth: 180 }}>
           <InputLabel>Sort by</InputLabel>
           <Select value={sort} label="Sort by" onChange={handleSortChange}>
-            <MenuItem value="rating">Rating (desc)</MenuItem>
-            <MenuItem value="difficulty">Difficulty (asc)</MenuItem>
-            <MenuItem value="time">Prep time (asc)</MenuItem>
-            <MenuItem value="alphabet">Alphabet (asc)</MenuItem>
+            <MenuItem value="rating">Rating </MenuItem>
+            <MenuItem value="difficulty">Difficulty </MenuItem>
+            <MenuItem value="time">Prep time</MenuItem>
+            <MenuItem value="alphabet">Alphabet</MenuItem>
           </Select>
         </FormControl>
 
