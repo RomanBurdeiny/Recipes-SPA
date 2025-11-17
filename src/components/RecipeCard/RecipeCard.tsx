@@ -1,6 +1,5 @@
 import {
   Card,
-  CardActionArea,
   CardMedia,
   CardContent,
   IconButton,
@@ -9,9 +8,9 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import StarIcon from '@mui/icons-material/Star';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import StarIcon from '@mui/icons-material/Star';
 import type { RecipeCardProps } from './RecipeCardProps';
 
 const RecipeCard: React.FC<RecipeCardProps> = ({
@@ -19,11 +18,13 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
   isFavorite,
   onToggleFavorite,
   onOpen,
+  onEdit,
+  onDelete,
 }) => {
   const imageSrc = recipe.image || '/placeholder.jpg';
 
   const handleCardClick = () => {
-    if (onOpen) onOpen();
+    onOpen?.();
   };
 
   const handleFavClick: React.MouseEventHandler<HTMLButtonElement> = e => {
@@ -36,19 +37,19 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
       sx={{
         borderRadius: 3,
         overflow: 'hidden',
-        height: 320,
+        height: 340,
         display: 'flex',
         flexDirection: 'column',
+        cursor: onOpen ? 'pointer' : 'default',
       }}
-      onClick={handleCardClick}
     >
-      <CardActionArea
+      <Box
         sx={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'stretch',
         }}
+        onClick={handleCardClick}
       >
         <Box sx={{ position: 'relative', width: '100%' }}>
           <CardMedia
@@ -60,7 +61,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
           />
 
           <IconButton
-            sx={{ position: 'absolute', top: 8, right: 8, bgcolor: 'white' }}
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              bgcolor: 'white',
+            }}
             onClick={handleFavClick}
           >
             {isFavorite ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
@@ -72,16 +78,18 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
             flexGrow: 1,
             display: 'flex',
             flexDirection: 'column',
-            gap: 0.5,
+            gap: 1,
+            pb: 2,
           }}
         >
           <Typography variant="h6" noWrap title={recipe.name}>
             {recipe.name}
           </Typography>
+
           <Stack direction="row" spacing={1} alignItems="center">
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <StarIcon sx={{ color: '#ffb400', fontSize: 20 }} />
-              <Typography variant="body2">{recipe.rating.toFixed(1)}</Typography>
+              <Typography variant="body2">{recipe.rating}</Typography>
             </Stack>
 
             {recipe.difficulty && (
@@ -98,8 +106,39 @@ const RecipeCard: React.FC<RecipeCardProps> = ({
               />
             )}
           </Stack>
+
+          {(onEdit || onDelete) && (
+            <Stack direction="row" spacing={1} mt={1}>
+              {onEdit && (
+                <Typography
+                  variant="body2"
+                  color="primary"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                >
+                  Edit
+                </Typography>
+              )}
+              {onDelete && (
+                <Typography
+                  variant="body2"
+                  color="error"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                >
+                  Delete
+                </Typography>
+              )}
+            </Stack>
+          )}
         </CardContent>
-      </CardActionArea>
+      </Box>
     </Card>
   );
 };

@@ -1,4 +1,3 @@
-import { useEffect, useState, type ChangeEvent, type FC } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,36 +5,32 @@ import {
   DialogActions,
   TextField,
   Button,
-  Box,
-  MenuItem,
+  Stack,
 } from '@mui/material';
+import { useEffect, useState } from 'react';
 import type { UserRecipe, UserRecipeInput } from '../../shared/types';
-
-const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
-const CUISINES = ['Italian', 'Indian', 'American', 'Mexican', 'French', 'Chinese'];
-
-type Mode = 'create' | 'edit';
 
 interface MyRecipeModalProps {
   open: boolean;
-  mode: Mode;
-  initialRecipe?: UserRecipe | null;
+  mode: 'create' | 'edit';
+  initialRecipe: UserRecipe | null;
   onClose: () => void;
-  onSave: (data: UserRecipeInput, id?: number) => void; // id только для edit
+  onSave: (data: UserRecipeInput, id?: number) => void;
   onDelete?: (id: number) => void;
 }
 
 const emptyForm: UserRecipeInput = {
   name: '',
   image: '',
-  mealType: '',
   cuisine: '',
-  prepTimeMinutes: undefined,
-  caloriesPerServing: undefined,
-  description: '',
+  rating: 0,
+  difficulty: '',
+  prepTimeMinutes: 0,
+  ingredients: [],
+  instructions: [],
 };
 
-const MyRecipeModal: FC<MyRecipeModalProps> = ({
+const MyRecipeModal: React.FC<MyRecipeModalProps> = ({
   open,
   mode,
   initialRecipe,
@@ -47,32 +42,54 @@ const MyRecipeModal: FC<MyRecipeModalProps> = ({
 
   useEffect(() => {
     if (mode === 'edit' && initialRecipe) {
-      setForm(initialRecipe);
-    } else if (mode === 'create') {
+      const { ...rest } = initialRecipe;
+
+      setForm({
+        ...emptyForm,
+        ...rest,
+        ingredients: rest.ingredients ?? [],
+        instructions: rest.instructions ?? [],
+      });
+    } else {
       setForm(emptyForm);
     }
   }, [mode, initialRecipe, open]);
 
-  const handleChange = (key: keyof UserRecipeInput) => (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setForm(prev => ({
-      ...prev,
-      [key]:
-        key === 'prepTimeMinutes' || key === 'caloriesPerServing'
-          ? value === ''
-            ? undefined
-            : Number(value)
-          : value,
-    }));
+  const handleChange =
+    (field: keyof UserRecipeInput) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value =
+        field === 'rating' || field === 'prepTimeMinutes' ? Number(e.target.value) : e.target.value;
+
+      setForm(prev => ({ ...prev, [field]: value }));
+    };
+
+  const preventEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') e.preventDefault();
+  };
+
+  const handleIngredientsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arr = e.target.value
+      .split(/[,;]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    setForm(prev => ({ ...prev, ingredients: arr }));
+  };
+
+  const handleInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const arr = e.target.value
+      .split(/[,;]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    setForm(prev => ({ ...prev, instructions: arr }));
   };
 
   const handleSubmit = () => {
-    if (!form.name.trim()) return;
-    onSave(form, initialRecipe?.id);
+    const id = mode === 'edit' && initialRecipe ? initialRecipe.id : undefined;
+    onSave(form, id);
   };
 
-  const handleDelete = () => {
-    if (mode === 'edit' && initialRecipe && onDelete) {
+  const handleDeleteClick = () => {
+    if (onDelete && initialRecipe) {
       onDelete(initialRecipe.id);
     }
   };
@@ -82,87 +99,72 @@ const MyRecipeModal: FC<MyRecipeModalProps> = ({
       <DialogTitle>{mode === 'create' ? 'Add new recipe' : 'Edit recipe'}</DialogTitle>
 
       <DialogContent>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField
-            label="Recipe name"
-            value={form.name}
-            onChange={handleChange('name')}
-            fullWidth
-            required
-          />
+        <Stack spacing={2} mt={1}>
+          <TextField label="Title" value={form.name} onChange={handleChange('name')} fullWidth />
 
           <TextField
             label="Image URL"
-            value={form.image ?? ''}
+            value={form.image}
             onChange={handleChange('image')}
             fullWidth
           />
 
           <TextField
-            select
-            label="Meal type"
-            value={form.mealType ?? ''}
-            onChange={handleChange('mealType')}
-            fullWidth
-          >
-            <MenuItem value="">None</MenuItem>
-            {MEAL_TYPES.map(m => (
-              <MenuItem key={m} value={m}>
-                {m}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <TextField
-            select
             label="Cuisine"
-            value={form.cuisine ?? ''}
+            value={form.cuisine}
             onChange={handleChange('cuisine')}
             fullWidth
-          >
-            <MenuItem value="">None</MenuItem>
-            {CUISINES.map(c => (
-              <MenuItem key={c} value={c}>
-                {c}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              label="Prep time (min)"
-              type="number"
-              value={form.prepTimeMinutes ?? ''}
-              onChange={handleChange('prepTimeMinutes')}
-              fullWidth
-            />
-            <TextField
-              label="Calories per serving"
-              type="number"
-              value={form.caloriesPerServing ?? ''}
-              onChange={handleChange('caloriesPerServing')}
-              fullWidth
-            />
-          </Box>
+          />
 
           <TextField
-            label="Description"
-            value={form.description ?? ''}
-            onChange={handleChange('description')}
+            label="Rating"
+            type="number"
+            inputProps={{ min: 0, max: 5, step: 0.1 }}
+            value={form.rating}
+            onChange={handleChange('rating')}
             fullWidth
-            multiline
-            minRows={3}
           />
-        </Box>
+
+          <TextField
+            label="Difficulty"
+            value={form.difficulty}
+            onChange={handleChange('difficulty')}
+            fullWidth
+          />
+
+          <TextField
+            label="Prep time (min)"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={form.prepTimeMinutes}
+            onChange={handleChange('prepTimeMinutes')}
+            fullWidth
+          />
+
+          <TextField
+            label="Ingredients (comma or ; separated)"
+            value={form.ingredients.join(', ')}
+            onChange={handleIngredientsChange}
+            onKeyDown={preventEnter}
+            fullWidth
+          />
+
+          <TextField
+            label="Instructions (comma or ; separated)"
+            value={form.instructions.join(', ')}
+            onChange={handleInstructionsChange}
+            onKeyDown={preventEnter}
+            fullWidth
+          />
+        </Stack>
       </DialogContent>
 
       <DialogActions>
         {mode === 'edit' && onDelete && (
-          <Button color="error" onClick={handleDelete}>
+          <Button color="error" onClick={handleDeleteClick}>
             Delete
           </Button>
         )}
-        <Box sx={{ flexGrow: 1 }} />
         <Button onClick={onClose}>Cancel</Button>
         <Button variant="contained" onClick={handleSubmit}>
           {mode === 'create' ? 'Create' : 'Save'}

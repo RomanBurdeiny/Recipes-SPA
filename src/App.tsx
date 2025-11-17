@@ -68,6 +68,15 @@ createRoot(document.getElementById('root')!).render(
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/my-recipes/:id"
+          element={
+            <ProtectedRoute>
+              <RecipeDetailsPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
     <ToastContainer position="top-right" autoClose={4000} />

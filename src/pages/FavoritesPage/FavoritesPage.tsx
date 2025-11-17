@@ -41,7 +41,7 @@ const FavoritesPage: React.FC = () => {
   const filteredFavorites = recipes.filter(r => favoriteIds.includes(r.id));
 
   return (
-    <Box sx={{ p: 4 }}>
+    <Box sx={{ p: 4, maxWidth: 1280, mx: 'auto' }}>
       <Typography variant="h4" fontWeight={600} mb={3}>
         Favorite Recipes
       </Typography>

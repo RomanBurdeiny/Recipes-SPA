@@ -1,6 +1,8 @@
+// MyRecipesPage.tsx
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Grid, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom'; // 👈 добавили
 
 import { auth } from '../../../firebase-config';
 import type { RootState, AppDispatch } from '../../redux/store';
@@ -16,13 +18,15 @@ import type { UserRecipe, UserRecipeInput } from '../../shared/types';
 
 const MyRecipesPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const uid = auth.currentUser?.uid ?? null;
+  const navigate = useNavigate(); // 👈
 
+  const uid = auth.currentUser?.uid ?? null;
   const myRecipes = useSelector((s: RootState) => s.myRecipes.items);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [selectedRecipe, setSelectedRecipe] = useState<UserRecipe | null>(null);
+
   useEffect(() => {
     if (uid) {
       dispatch(fetchMyRecipesForUser(uid));
@@ -76,6 +80,7 @@ const MyRecipesPage: React.FC = () => {
               recipe={recipe}
               isFavorite={false}
               onToggleFavorite={() => {}}
+              onOpen={() => navigate(`/my-recipes/${recipe.id}`)} // 👈 открытие просмотра
               onEdit={() => openEditModal(recipe)}
               onDelete={() => handleDelete(recipe.id)}
             />

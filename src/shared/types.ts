@@ -51,6 +51,8 @@ export interface UserRecipe {
   caloriesPerServing?: number;
   description?: string;
   rating: number;
-  difficulty?: number;
+  difficulty?: string;
+  ingredients: string[];
+  instructions: string[];
 }
 export type UserRecipeInput = Omit<UserRecipe, 'id'>;
