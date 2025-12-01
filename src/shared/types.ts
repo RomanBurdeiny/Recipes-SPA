@@ -54,5 +54,6 @@ export interface UserRecipe {
   difficulty?: string;
   ingredients: string[];
   instructions: string[];
+  tags: string[];
 }
 export type UserRecipeInput = Omit<UserRecipe, 'id'>;

@@ -80,7 +80,7 @@ const MyRecipesPage: React.FC = () => {
               recipe={recipe}
               isFavorite={false}
               onToggleFavorite={() => {}}
-              onOpen={() => navigate(`/my-recipes/${recipe.id}`)} // 👈 открытие просмотра
+              onOpen={() => navigate(`/my-recipes/${recipe.id}`)}
               onEdit={() => openEditModal(recipe)}
               onDelete={() => handleDelete(recipe.id)}
             />

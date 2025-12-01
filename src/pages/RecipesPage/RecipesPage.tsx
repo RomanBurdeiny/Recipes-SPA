@@ -108,8 +108,15 @@ const RecipesPage: React.FC = () => {
   };
 
   const handleFilterChange =
-    (key: 'mealType' | 'cuisine' | 'tag') => (e: SelectChangeEvent<string>) =>
-      setFilters(prev => ({ ...prev, [key]: e.target.value }));
+    (key: 'mealType' | 'cuisine' | 'tag') => (e: SelectChangeEvent<string>) => {
+      const value = e.target.value;
+      setFilters({
+        mealType: '',
+        cuisine: '',
+        tag: '',
+        [key]: value,
+      });
+    };
 
   return (
     <Box

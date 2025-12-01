@@ -28,6 +28,7 @@ const emptyForm: UserRecipeInput = {
   prepTimeMinutes: 0,
   ingredients: [],
   instructions: [],
+  tags: [],
 };
 
 const MyRecipeModal: React.FC<MyRecipeModalProps> = ({
@@ -63,24 +64,20 @@ const MyRecipeModal: React.FC<MyRecipeModalProps> = ({
       setForm(prev => ({ ...prev, [field]: value }));
     };
 
-  const preventEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') e.preventDefault();
+  const handleIngredientsChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const lines = e.target.value.split('\n').map(s => s.trim());
+
+    setForm(prev => ({ ...prev, ingredients: lines }));
   };
 
-  const handleIngredientsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const arr = e.target.value
-      .split(/[,;]+/)
-      .map(s => s.trim())
-      .filter(Boolean);
-    setForm(prev => ({ ...prev, ingredients: arr }));
-  };
+  const handleInstructionsChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const lines = e.target.value.split('\n').map(s => s.trim());
 
-  const handleInstructionsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const arr = e.target.value
-      .split(/[,;]+/)
-      .map(s => s.trim())
-      .filter(Boolean);
-    setForm(prev => ({ ...prev, instructions: arr }));
+    setForm(prev => ({ ...prev, instructions: lines }));
   };
 
   const handleSubmit = () => {
@@ -142,19 +139,21 @@ const MyRecipeModal: React.FC<MyRecipeModalProps> = ({
           />
 
           <TextField
-            label="Ingredients (comma or ; separated)"
-            value={form.ingredients.join(', ')}
+            label="Ingredients (one per line)"
+            value={(form.ingredients ?? []).join('\n')}
             onChange={handleIngredientsChange}
-            onKeyDown={preventEnter}
             fullWidth
+            multiline
+            minRows={3}
           />
 
           <TextField
-            label="Instructions (comma or ; separated)"
-            value={form.instructions.join(', ')}
+            label="Instructions (one step per line)"
+            value={(form.instructions ?? []).join('\n')}
             onChange={handleInstructionsChange}
-            onKeyDown={preventEnter}
             fullWidth
+            multiline
+            minRows={4}
           />
         </Stack>
       </DialogContent>
